@@ -4,13 +4,13 @@ import Foundation
 
 let apiJsonDecoder: JSONDecoder = {
     let jsonDecoder = JSONDecoder()
-
-    // TODO: Configure
- 
+    jsonDecoder.keyDecodingStrategy = .convertFromSnakeCase
+    
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+    jsonDecoder.dateDecodingStrategy = .formatted(dateFormatter)
     return jsonDecoder
-
 }()
-
 
 // MARK: JSON Response Decodable
 
@@ -20,5 +20,5 @@ struct JSONEvent: Decodable, Identifiable {
 
     let id: String
 
-    // TODO: Add remaining properties
+    #warning("// TODO: Add remaining properties")
 }
