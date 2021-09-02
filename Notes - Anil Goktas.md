@@ -4,8 +4,6 @@
 
 - `Policy` and `Vehicle` storing each other using strong references which would cause a retain cycle.
 
-- `PolicyEventProcessor.retrieve(for: Date)` parameter naming `for: Date` is not very ideal since its usage will require backticks or extra variable definition for convenience. 
-
 ### Personal notes
 
 - Most of the classes marked as `final` in order to improve compilation time.
