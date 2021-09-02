@@ -24,3 +24,5 @@
     - The policy can be extended with `policy_extended` event.
     - An extended policy (A) can be extended again, second extension (B) points to first extension (A) in `original_policy_id` field.
     - Any policy can be cancelled with `policy_cancelled`. Therefore `policy_id` field can point to any created or extended policy.
+
+- I believe snapshot testing would be nice before starting the UI testing in order to capture smaller views' formats.
