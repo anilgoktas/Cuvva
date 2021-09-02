@@ -3,7 +3,7 @@ import Foundation
 final class LivePolicyEventProcessor: PolicyEventProcessor {
     
     /// In-memory store in order to create `PolicyData` for the given date on `retrieve(:)`.
-    private var vehicleHistories = [VehicleHistory]()
+    private(set) var vehicleHistories = [VehicleHistory]()
 
 }
 
@@ -19,6 +19,7 @@ extension LivePolicyEventProcessor {
         for vehicleHistory in vehicleHistories {
             autoreleasepool {
                 let vehicle = vehicleHistory.vehicle
+                // We will only use policies existing on the current (given) date.
                 let policyHistories = vehicleHistory.policyHistories.filter { $0.timestamp < currentDate }
                 guard !policyHistories.isEmpty else { return }
                 
@@ -152,7 +153,7 @@ extension LivePolicyEventProcessor {
         
         /// Indicates the policy is active on the given date.
         func isActive(on date: Date) -> Bool {
-            startDate < date && endDate < date
+            startDate < date && endDate > date
         }
     }
     
