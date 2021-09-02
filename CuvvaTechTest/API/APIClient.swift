@@ -2,7 +2,7 @@ import Foundation
 import Combine
 
 struct APIClient {
-  var events: () -> AnyPublisher<JSONResponse, Error>
+  private(set) var events: () -> AnyPublisher<JSONResponse, Error>
 
   public init(
     events: @escaping () -> AnyPublisher<JSONResponse, Error>
