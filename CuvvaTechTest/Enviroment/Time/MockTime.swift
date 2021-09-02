@@ -1,6 +1,6 @@
 import Foundation
 
-class FixedTime: Time {
+final class FixedTime: Time {
     
     init() {
         super.init(with: Date())
