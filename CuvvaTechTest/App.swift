@@ -4,12 +4,14 @@ import Combine
 @main
 struct CuvvaTechTestApp: App {
     
-    // TODO: Replace mocks with custom implementations
-    private static let useLive: Bool = false
+    /// Indicates that app should use live/production environment.
+    private static let useLive = true
+    
+    /// Indicates that app is opened by unit testing. Check `Scheme < Test < Arguments`.
+    private static var isUnitTesting: Bool { ProcessInfo.processInfo.arguments.contains("-UNITTEST") }
     
     private var appModel: AppViewModel = {
-        
-        guard useLive else {
+        guard useLive, !Self.isUnitTesting else {
             return .init(
                 apiClient: .mockEmpty,
                 policyModel: MockPolicyModel()
@@ -20,37 +22,24 @@ struct CuvvaTechTestApp: App {
             apiClient: .live,
             policyModel: LivePolicyEventProcessor()
         )
-        
     }()
     
     var body: some Scene {
         WindowGroup {
             HomeView(model: appModel)
         
-            
-            /**
-                TODO: Supply own PolicyTermFormatter implementation
-            */
-            
+            #warning("Supply own PolicyTermFormatter implementation")
 //               .environment(\.policyTermFormatter, LivePolicyTermFormatter())
-            
-            
-            /**
-                The app uses a static time by default
-                TODO: Uncomment the line below to use the device time
-            */
-            
+            // The app uses a static time by default
+            #warning("TODO: Uncomment the line below to use the device time")
 //               .environment(\.now, LiveTime())
-            
-            
-            
         }
     }
 }
 
-// MARK: App View Model
+// MARK: - App View Model
 
-class AppViewModel: ObservableObject {
+final class AppViewModel: ObservableObject {
     
     @Published private(set) var activePolicies = [Policy]()
     @Published private(set) var historicalVehicles = [Vehicle]()
@@ -64,9 +53,10 @@ class AppViewModel: ObservableObject {
         }
     }
     
-    var cancellationToken: AnyCancellable?
+    private var cancellationToken: AnyCancellable?
     
     // MARK: Dependencies
+    
     private let apiClient: APIClient
     private let policyModel: PolicyEventProcessor
     
@@ -78,7 +68,6 @@ class AppViewModel: ObservableObject {
     }
     
     func reload(date: @escaping () -> Date) {
-        
         isLoading = true
         
         cancellationToken = apiClient.events()
