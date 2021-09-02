@@ -11,8 +11,7 @@ final class LivePolicyEventProcessor: PolicyEventProcessor {
 
 extension LivePolicyEventProcessor {
     
-    func retrieve(for: Date) -> PolicyData {
-        let currentDate = `for`
+    func retrieve(for date: Date) -> PolicyData {
         var activePolicies = [Policy]()
         var historicVehicles = [Vehicle]()
         
@@ -20,10 +19,10 @@ extension LivePolicyEventProcessor {
             autoreleasepool {
                 let vehicle = vehicleHistory.vehicle
                 // We will only use policies existing on the current (given) date.
-                let policyHistories = vehicleHistory.policyHistories.filter { $0.timestamp < currentDate }
+                let policyHistories = vehicleHistory.policyHistories.filter { $0.timestamp < date }
                 guard !policyHistories.isEmpty else { return }
                 
-                if let activePolicyHistory = policyHistories.first(where: { $0.isActive(on: currentDate) }) {
+                if let activePolicyHistory = policyHistories.first(where: { $0.isActive(on: date) }) {
                     // Configure active policy.
                     let activePolicy = activePolicyHistory.makePolicy()
                     vehicle.activePolicy = activePolicy
