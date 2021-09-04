@@ -53,6 +53,8 @@ extension LivePolicyEventProcessor {
 
 extension LivePolicyEventProcessor {
     
+    #warning("Extend JSONEvent? or VehicleFactory?")
+    #warning("Or how about simply wrapping jsonEvent into a simpler interface?")
     struct PolicyResponse {
         let event: JSONEvent.Event
         let timestamp: Date
@@ -169,6 +171,8 @@ extension LivePolicyEventProcessor {
             policyHistories.append(policyHistory)
             policyHistories.sort(by: { $0.startDate < $1.startDate })
         }
+        
+        #warning("Policy histories for date function?")
     }
     
     func store(json: JSONResponse) {

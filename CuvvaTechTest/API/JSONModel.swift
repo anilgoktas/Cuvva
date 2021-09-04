@@ -18,6 +18,7 @@ typealias JSONResponse = [JSONEvent]
 
 struct JSONEvent: Decodable {
     
+    #warning("EventType?")
     enum Event: String, Decodable, CaseIterable {
         case policy_created
         case policy_extension
