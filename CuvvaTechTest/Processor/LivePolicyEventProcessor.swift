@@ -17,7 +17,11 @@ extension LivePolicyEventProcessor {
         
         for vehicleHistory in vehicleHistories {
             autoreleasepool {
+                // Reset stored policies of the vehicle.
                 let vehicle = vehicleHistory.vehicle
+                vehicle.activePolicy = nil
+                vehicle.historicalPolicies = []
+                
                 // We will only use policies existing on the current (given) date.
                 let policyHistories = vehicleHistory.policyHistories.filter { $0.timestamp < date }
                 guard !policyHistories.isEmpty else { return }
