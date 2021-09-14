@@ -1,61 +1,51 @@
-# Hello fellow iOS developer.
+## Cuvva Technical Interview
 
-We’re really happy you’re interested in joining our iOS team at Cuvva.
+- This repository includes my solution for [Cuvva](https://www.cuvva.com) technical interview.
+- Original repository can be found [here](https://github.com/cuvva/hiring-mobile-test)
 
-The point of this task is to demonstrate your thinking process, deductive reasoning, problem solving and how well you can interpret and implement a brief. We’re looking for a clean, well factored Swift codebase. Your submission should demonstrate your ability to produce functionally correct, maintainable, testable code. And of course, we want to see your well-versed understanding of the Swift language and the iOS SDK.
+### App Feedback
 
-What we are not going to look at is any “boilerplate code”. We don’t care how you get the data from the API for instance, feel free to do a blocking synchronous hack if you want to!
+- As a heads up on iOS 15b6, the launch screen has this glitch where it gets smaller to the left side and then goes full screen.
+- When the app is completely closed, opening the app using the "Contact support" shortcut dismisses the Intercom support screen.
+- Onboarding
+    - Nice animation on button highlighting
+    - VoiceOver reads the Support button as Ic support
+    - Continue web quote screen Close button accessibility label is CloseBarButtonItem
+- Signup
+    - Deep-link using emailed magic link and consent UX is really nice.
+- Profile
+    - FPS drops during the list header becomes the navigation bar title
+    - The new App Store Review Guidelines (5.1.1) states that "If your app supports account creation, you must also offer account deletion within the app". Since your app does not have the deletion on the App store version, another heads up
+- IPA Notes
+    - Since the minimum iOS version for the app is 13, how about using Color assets instead of defining them in theme.json probably by using a script error-codes.json strings.json generated common messages for all platforms?
+    - Lots of nibs, Storyboard ✅
+    - BSON, Binary JSON, MongoDB? Do you plan to use Realm as well?
 
-If you have any questions, feel free to reach out to the team – we’re here to help you succeed.
+### Initial notes about the review project
 
-## Getting started
+- We could use `warning("// TODO: Configure") in order to notify the candidate for missing points on the code through Xcode warnings
 
-We have supplied a skeleton of a simple app that displays insurance policy data for a customers cars.
-Each car could have an active policy (one where the current app time is between the start and end dates of the policy) and an array of previous or cancelled policies.
-The final models for the UI and the UI itself are complete and should not be changed.
-We have supplied mock examples to create these models which you can use as a guide for your "live" implementation
+- `Policy` and `Vehicle` storing each other using strong references which would cause a retain cycle.
 
-### Your task is : 
- - to retrieve the event stream from the endpoint specified in the API Client
- - decode these event payloads into JSONEvents (of your specification)
- - process these JSONEvents into the final models (Vehicle and Policy)
- - processing logic should be in the LivePolicyEventProcessor
- - we have littered the code base with "TODO"s - all these todo's should be resolved to consider the test as complete
- - create some unit tests that test what you think are the most important aspects (we will run a different valid event stream through your code and would expect the outcome to be correct)
- - UI tests are not required
+### Personal notes
 
-### Important information about interpreting events
- - the insurance cover for a car (referred to here as a "policy") can actually be multiple concurrent policy type events joined together
- eg
- ```
- "type": "policy_created"
- "policy_id": "dev_pol_0000001",
- "start_date": "2020-03-19T13:00:00.000Z",
- "end_date": "2020-03-20T14:00:00.000Z",
- ```
- then 
- ```
- "type": "policy_extension",
- "original_policy_id": "dev_pol_0000001",
- "policy_id": "dev_pol_0000002",
- "start_date": "2020-03-19T14:00:01.000Z",
- "end_date": "2020-03-20T15:00:00.000Z",
-```
-This tells us that dev_pol_0000001 has been extended by an hour and is therefore a 2 hour policy (internally made up of 2 x 1 hour policies) 
+- Most of the classes marked as `final` in order to improve compilation time.
 
-  - cancellation : start date stays same - duration is zero
-  - extension : start date stays same, duration is extended to the new end time
+- Currently we're not verifying backend endpoint for edge cases such as:
+    - Policy end date must be later than the start date.
+    - Created policy must have `start_date`, `end_date`, `vehicle` fields.
+    - Extended policy must have `original_policy_id`, `start_date`, `end_date` fields.
 
-### Notes:
- - No need to touch the UI folder.  If your implementation is correct then the UI will just work :D 
- - Consider the processing of the event stream - we're looking for efficiency & speed of processing (imagine the event stream could contain thousands of events)
- - There is potentially bad design decision in the policy and vehicle models - can you spot it? (you do not need to fix it!)
+- `LivePolicyEventProcessor` uses memory storage. 
+    - Storage could be expanded to CoreData/SQLite/Realm/GRDB. 
+    - However due to `PolicyEventProcessor.retrieve(:)` function returns the value synchronously, threading off of main thread wouldn't be an option for current implementation.
+    - `autoreleasepool` used inside the `for` loops in order not to bloat memory with temporary variables.
 
-### Completion
-Share your private Github repo with the user @cuvvatest.
+- `LivePolicyEventProcessor.store(:)` **assumes** some rules while configuring `PolicyHistory` array, such as:
+    - A vehicle can have multiple policies.
+    - A policy should be created with `policy_created` event.
+    - The policy can be extended with `policy_extended` event.
+    - An extended policy (A) can be extended again, second extension (B) points to first extension (A) in `original_policy_id` field.
+    - Any policy can be cancelled with `policy_cancelled`. Therefore `policy_id` field can point to any created or extended policy.
 
-Remember to mention your Github username in communication with us or include your name in the repository description so that we know whose code we’re looking at.
-
-After we have considered your submission you may be asked to discuss your solution either face to face or over a video / screen sharing call.
-
-Good luck and we look forward to speaking with you very soon.
+- I believe snapshot testing would be nice before starting the UI testing in order to capture smaller views' formats.
