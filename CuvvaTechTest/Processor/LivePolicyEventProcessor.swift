@@ -221,6 +221,7 @@ extension LivePolicyEventProcessor {
             return PolicyHistory(original: createdPolicy, vehicle: vehicle)
         }
         
+        #warning("Due to random order, first extended may come after second, where second couldn't be added due to its original (first) not contained in policy history - Solution: sort by date")
         // Update related policy histories using extended policies.
         for extendedPolicy in extendedPolicies {
             guard
